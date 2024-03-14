@@ -1,4 +1,4 @@
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, QRect
 from PyQt6.QtGui import QPaintEvent, QPainter, QKeyEvent
 from PyQt6.QtWidgets import QLabel
 
@@ -7,8 +7,11 @@ class Snake(QLabel):
     def __init__(self, parent=None):
         super(Snake, self).__init__(parent)
 
-        self.__x = 50
-        self.__y = 50
+        self.__delta = 10
+        self.setFixedSize(30 * self.__delta, 30 * self.__delta)
+
+        self.__list_of_rects = list()
+        self.__list_of_rects.append(QRect(15 * self.__delta, 15 * self.__delta, self.__delta, self.__delta))
 
         self.activateWindow()
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -16,19 +19,25 @@ class Snake(QLabel):
     def paintEvent(self, a0: QPaintEvent) -> None:
         painter = QPainter(self)
 
-        painter.drawText(self.__x, self.__y, "Hallo Welt")
+        painter.drawRects(self.__list_of_rects)
+
+        # Zeichen Sie einen roten Kreis, welche unsere Schlange später isst.
 
     def keyReleaseEvent(self, ev: QKeyEvent) -> None:
         super(Snake, self).keyReleaseEvent(ev)
 
         match ev.key():
             case Qt.Key.Key_Left:
-                self.__x -= 10
+                for rect in self.__list_of_rects:
+                    rect.translate(- self.__delta, 0)
             case Qt.Key.Key_Right:
-                self.__x += 10
+                for rect in self.__list_of_rects:
+                    rect.translate(self.__delta, 0)
             case Qt.Key.Key_Up:
-                self.__y -= 10
+                for rect in self.__list_of_rects:
+                    rect.translate(0, - self.__delta)
             case Qt.Key.Key_Down:
-                self.__y += 10
+                for rect in self.__list_of_rects:
+                    rect.translate(0, self.__delta)
 
         self.update()
