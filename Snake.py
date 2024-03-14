@@ -19,9 +19,14 @@ class Snake(QLabel):
     def paintEvent(self, a0: QPaintEvent) -> None:
         painter = QPainter(self)
 
+        # Zeichnen Sie den Hintergrund in der Farbe Schwarz.
+
         painter.drawRects(self.__list_of_rects)
+        # Füllen Sie die Rechtecke der Schlage in der Farbe gelb aus.
 
         # Zeichen Sie einen roten Kreis, welche unsere Schlange später isst.
+        # Der Kreis erhält einmalig zufällige Koordinaten. Die Koordinaten werden bis zum
+        # verschlingen der Beute gespeichert.
 
     def keyReleaseEvent(self, ev: QKeyEvent) -> None:
         super(Snake, self).keyReleaseEvent(ev)
