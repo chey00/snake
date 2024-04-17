@@ -1,3 +1,4 @@
+import copy
 import random
 
 from PyQt6.QtCore import Qt, QRect
@@ -24,6 +25,7 @@ class Snake(QLabel):
         self.__brush_black = QBrush(QColor("black"))
         self.__brush_yellow = QBrush(QColor("yellow"))
         self.__brush_red = QBrush(QColor("red"))
+        self.__brush_green = QBrush(QColor("green"))
 
         self.__list_of_rects = list()
         self.__list_of_rects.append(QRect(15 * self.__delta, 15 * self.__delta, self.__delta, self.__delta))
@@ -47,6 +49,8 @@ class Snake(QLabel):
             painter.drawRect(rect)
             painter.fillRect(rect, self.__brush_yellow)
 
+        painter.fillRect(self.__list_of_rects[0], self.__brush_green)
+
         # paint loot
         painter.setBrush(self.__brush_red)
         painter.drawEllipse(self.__loot)
@@ -54,31 +58,38 @@ class Snake(QLabel):
     def keyReleaseEvent(self, ev: QKeyEvent) -> None:
         super(Snake, self).keyReleaseEvent(ev)
 
-        rect = self.__list_of_rects[0]
+        current_rect = self.__list_of_rects[0]
 
+        if not self.__field.contains(current_rect):
+            self.__error_message.showMessage("Out of boundary.")
+
+        if self.__loot.contains(current_rect):
+            self.__list_of_rects.append(QRect(current_rect.x(), current_rect.y(), self.__delta, self.__delta))
+
+            self.__loot = self.generate_loot()
+
+        x = current_rect.x()
+        y = current_rect.y()
+
+        last_rect = self.__list_of_rects.pop()
+
+        last_rect.setRect(x, y, self.__delta, self.__delta)
         match ev.key():
             case Qt.Key.Key_Left:
-                rect.translate(- self.__delta, 0)
+                last_rect.translate(- self.__delta, 0)
             case Qt.Key.Key_Right:
-                rect.translate(self.__delta, 0)
+                last_rect.translate(self.__delta, 0)
             case Qt.Key.Key_Up:
-                rect.translate(0, - self.__delta)
+                last_rect.translate(0, - self.__delta)
             case Qt.Key.Key_Down:
-                rect.translate(0, self.__delta)
+                last_rect.translate(0, self.__delta)
 
-        self.check_move(rect)
+        self.__list_of_rects.insert(0, last_rect)
+
+        self.update()
 
     def generate_loot(self):
         loot_x = random.randrange(0, self.__number_x) * self.__delta
         loot_y = random.randrange(0, self.__number_y) * self.__delta
 
         return QRect(loot_x, loot_y, self.__delta, self.__delta)
-
-    def check_move(self, rect):
-        if self.__loot.contains(rect):
-            self.__loot = self.generate_loot()
-
-        if not self.__field.contains(rect):
-            self.__error_message.showMessage("Out of boundary.")
-
-        self.update()
