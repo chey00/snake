@@ -58,33 +58,33 @@ class Snake(QLabel):
     def keyReleaseEvent(self, ev: QKeyEvent) -> None:
         super(Snake, self).keyReleaseEvent(ev)
 
-        current_rect = self.__list_of_rects[0]
+        next_rect = copy.deepcopy(self.__list_of_rects[0])
 
-        if not self.__field.contains(current_rect):
-            self.__error_message.showMessage("Out of boundary.")
-
-        if self.__loot.contains(current_rect):
-            self.__list_of_rects.append(QRect(current_rect.x(), current_rect.y(), self.__delta, self.__delta))
-
-            self.__loot = self.generate_loot()
-
-        x = current_rect.x()
-        y = current_rect.y()
-
-        last_rect = self.__list_of_rects.pop()
-
-        last_rect.setRect(x, y, self.__delta, self.__delta)
         match ev.key():
             case Qt.Key.Key_Left:
-                last_rect.translate(- self.__delta, 0)
+                next_rect.translate(- self.__delta, 0)
             case Qt.Key.Key_Right:
-                last_rect.translate(self.__delta, 0)
+                next_rect.translate(self.__delta, 0)
             case Qt.Key.Key_Up:
-                last_rect.translate(0, - self.__delta)
+                next_rect.translate(0, - self.__delta)
             case Qt.Key.Key_Down:
-                last_rect.translate(0, self.__delta)
+                next_rect.translate(0, self.__delta)
 
-        self.__list_of_rects.insert(0, last_rect)
+        if not self.__field.contains(next_rect):
+            self.__error_message.showMessage("Out of boundary.")
+
+        for rect in self.__list_of_rects:
+            if rect.contains(next_rect):
+                self.__error_message.showMessage("Sneak bits itself.")
+
+        if self.__loot.contains(next_rect):
+            self.__list_of_rects.insert(0, QRect(next_rect.x(), next_rect.y(), self.__delta, self.__delta))
+
+            self.__loot = self.generate_loot()
+        else:
+            self.__list_of_rects.pop()
+
+            self.__list_of_rects.insert(0, next_rect)
 
         self.update()
 
