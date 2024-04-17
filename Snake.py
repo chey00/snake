@@ -25,7 +25,7 @@ class Snake(QLabel):
         self.__brush_black = QBrush(QColor("black"))
         self.__brush_yellow = QBrush(QColor("yellow"))
         self.__brush_red = QBrush(QColor("red"))
-        self.__brush_green = QBrush(QColor("green"))
+        self.__brush_limegreen = QBrush(QColor("limegreen"))
 
         self.__list_of_rects = list()
         self.__list_of_rects.append(QRect(15 * self.__delta, 15 * self.__delta, self.__delta, self.__delta))
@@ -49,7 +49,7 @@ class Snake(QLabel):
             painter.drawRect(rect)
             painter.fillRect(rect, self.__brush_yellow)
 
-        painter.fillRect(self.__list_of_rects[0], self.__brush_green)
+        painter.fillRect(self.__list_of_rects[0], self.__brush_limegreen)
 
         # paint loot
         painter.setBrush(self.__brush_red)
