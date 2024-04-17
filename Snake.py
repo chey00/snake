@@ -78,13 +78,11 @@ class Snake(QLabel):
                 self.__error_message.showMessage("Sneak bits itself.")
 
         if self.__loot.contains(next_rect):
-            self.__list_of_rects.insert(0, QRect(next_rect.x(), next_rect.y(), self.__delta, self.__delta))
-
             self.__loot = self.generate_loot()
         else:
             self.__list_of_rects.pop()
 
-            self.__list_of_rects.insert(0, next_rect)
+        self.__list_of_rects.insert(0, next_rect)
 
         self.update()
 
