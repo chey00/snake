@@ -2,8 +2,8 @@ import copy
 import random
 
 from PyQt6.QtCore import Qt, QRect
-from PyQt6.QtGui import QPaintEvent, QPainter, QKeyEvent, QColor, QBrush
-from PyQt6.QtWidgets import QLabel, QErrorMessage
+from PyQt6.QtGui import QPaintEvent, QPainter, QKeyEvent, QColor, QBrush, QFont
+from PyQt6.QtWidgets import QLabel
 
 
 class Snake(QLabel):
@@ -20,7 +20,7 @@ class Snake(QLabel):
 
         self.setFixedSize(self.__field.size())
 
-        self.__error_message = QErrorMessage()
+        self.__text_message = None
 
         self.__brush_black = QBrush(QColor("black"))
         self.__brush_yellow = QBrush(QColor("yellow"))
@@ -31,7 +31,7 @@ class Snake(QLabel):
         self.__list_of_rects.append(QRect(15 * self.__delta, 15 * self.__delta, self.__delta, self.__delta))
 
         random.seed("debug")
-        #random.seed()
+        # random.seed()
         self.__loot = self.generate_loot()
 
         self.activateWindow()
@@ -44,16 +44,22 @@ class Snake(QLabel):
         painter.setBrush(self.__brush_black)
         painter.drawRect(self.__field)
 
-        # paint snake
-        for rect in self.__list_of_rects:
+        # paint snakes body
+        for rect in self.__list_of_rects[1:]:
             painter.drawRect(rect)
             painter.fillRect(rect, self.__brush_yellow)
 
+        # paint snakes head
+        painter.drawRect(self.__list_of_rects[0])
         painter.fillRect(self.__list_of_rects[0], self.__brush_limegreen)
 
         # paint loot
         painter.setBrush(self.__brush_red)
         painter.drawEllipse(self.__loot)
+
+        if self.__text_message:
+            painter.setPen(QColor("limegreen"))
+            painter.drawText(100, 100, self.__text_message)
 
     def keyReleaseEvent(self, ev: QKeyEvent) -> None:
         super(Snake, self).keyReleaseEvent(ev)
@@ -71,11 +77,11 @@ class Snake(QLabel):
                 next_rect.translate(0, self.__delta)
 
         if not self.__field.contains(next_rect):
-            self.__error_message.showMessage("Out of boundary.")
+            self.__text_message = "Out of boundary."
 
         for rect in self.__list_of_rects:
             if rect.contains(next_rect):
-                self.__error_message.showMessage("Sneak bits itself.")
+                self.__text_message = "Sneak bits itself."
 
         if self.__loot.contains(next_rect):
             self.__loot = self.generate_loot()
